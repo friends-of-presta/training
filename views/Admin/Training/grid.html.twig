@@ -1,0 +1,48 @@
+{% extends '@PrestaShop/Admin/layout.html.twig' %}
+
+{% block search_widget %}
+  {% spaceless %}
+    <button type="submit"
+            class="btn btn-primary grid-search-button d-block float-right"
+            title="{{ 'Search'|trans({}, 'Admin.Actions') }}"
+            name="{{ full_name }}[search]"
+            {% if disable_search_button %} disabled="true" {% endif %}
+    >
+      <i class="material-icons">search</i>
+      {{ 'Search'|trans({}, 'Admin.Actions') }}
+    </button>
+
+    <div class="js-grid-reset-button" {% if not show_reset_button %} hidden {% endif %}>
+      <div class="clearfix"></div>
+      <button type="reset"
+              name="{{ full_name }}[reset]"
+              class="btn btn-link js-reset-search btn d-block grid-reset-button float-right"
+              data-url="{{ reset_url }}"
+              data-redirect="{{ redirect_url }}"
+      >
+        <i class="material-icons">clear</i>
+        {{ 'Reset'|trans({}, 'Admin.Actions') }}
+      </button>
+    </div>
+  {% endspaceless %}
+{% endblock search_widget %}
+
+{% block content %}
+  <div class="row">
+    <div class="col">
+      {% include '@PrestaShop/Admin/Common/Grid/grid_panel.html.twig' with {'grid': productGrid} %}
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col" style="display:none;">
+      {{ hello() }}
+    </div>
+  </div>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+
+  <script src="{{ asset('../modules/training/public/build/admin/product/index.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,35 @@
+#
+# Simple page with a Form
+#
+admin_ps_training_index:
+  path: /training/
+  methods: [GET]
+  defaults:
+    _controller: 'PrestaShop\Training\Controller\Admin\ExempleController::indexAction'
+    _legacy_controller: 'AdminTrainingIndexClass'
+    _legacy_link: 'AdminTrainingIndexClass'
+
+admin_ps_training_form_submit:
+  path: /training/
+  methods: [POST]
+  defaults:
+    _controller: 'PrestaShop\Training\Controller\Admin\ExempleController::formAction'
+    _legacy_controller: 'AdminTrainingIndexClass'
+    _legacy_link: 'AdminTrainingFormClass'
+
+#
+# Products Grid exemple
+#
+admin_ps_training_products:
+  path: /training/products
+  methods: [GET]
+  defaults:
+    _controller: 'PrestaShop\Training\Controller\Admin\ProductController::listingAction'
+    _legacy_controller: 'AdminTrainingGridClass'
+    _legacy_link: 'AdminTrainingGridClass'
+
+admin_ps_training_products_search:
+  path: /training/products
+  methods: [POST]
+  defaults:
+    _controller: 'PrestaShop\Training\Controller\Admin\ProductController::searchAction'

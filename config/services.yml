@@ -1,0 +1,77 @@
+parameters:
+  exchange_rates_api_endpoint: 'https://api.exchangeratesapi.io/latest'
+
+services:
+  _defaults:
+    public: true
+
+  ps_training.language.decorating_language_activator:
+    class: 'PrestaShop\Training\Language\DecoratingLanguageActivator'
+    arguments:
+      - '@ps_training.language.decorating_language_activator.inner'
+      - '@prestashop.adapter.legacy.configuration'
+    decorates: 'prestashop.adapter.language.activator'
+
+  ps_training.service.guzzle_client_factory:
+    class: 'PrestaShop\Training\Factory\GuzzleClientFactory'
+
+  ps_training.command.shop_status_command:
+    class: 'PrestaShop\Training\Command\ShopStatusCommand'
+    tags:
+      - { name: console.command }
+
+  ps_training.grid.query_builder.product_query_builder:
+    class: 'PrestaShop\Training\Grid\QueryBuilder\ProductQueryBuilder'
+    arguments:
+      - '@doctrine.dbal.default_connection'
+      - '%database_prefix%'
+      - "@=service('prestashop.adapter.legacy.context').getContext().language.id"
+      - "@=service('prestashop.adapter.legacy.context').getContext().shop.id"
+
+  ps_training.grid.definition.product_grid_definition_factory:
+    class: 'PrestaShop\Training\Grid\Definition\ProductGridDefinitionFactory'
+    parent: 'prestashop.core.grid.definition.factory.abstract_grid_definition'
+    arguments:
+      - '@prestashop.core.hook.dispatcher'
+      - "@=service('router').generate('admin_common_reset_search', {'controller': 'product', 'action': 'listing'})"
+      - "@=service('router').generate('admin_ps_training_products')"
+    public: true
+
+  ps_training.grid.product_data_factory:
+    class: 'PrestaShop\PrestaShop\Core\Grid\Data\Factory\DoctrineGridDataFactory'
+    arguments:
+      - '@ps_training.grid.query_builder.product_query_builder'
+      - '@prestashop.core.hook.dispatcher'
+      - '@prestashop.core.grid.query.doctrine_query_parser'
+      - 'ps_training_product'
+
+  ps_training.grid.product_grid_factory:
+    class: 'PrestaShop\PrestaShop\Core\Grid\GridFactory'
+    arguments:
+      - '@ps_training.grid.definition.product_grid_definition_factory'
+      - '@ps_training.grid.product_data_factory'
+      - '@prestashop.core.grid.filter.form_factory'
+      - '@prestashop.core.hook.dispatcher'
+
+  ps_training.twig.ps_training_extension:
+    class: 'PrestaShop\Training\Twig\TrainingExtension'
+    tags:
+      - { name: twig.extension }
+
+  ps_training.form.type.yes_and_no_choice:
+    class: 'PrestaShop\Training\Grid\FormType\YesAndNoChoiceType'
+    parent: 'form.type.translatable.aware'
+    public: true
+    tags:
+      - { name: form.type }
+
+  ps_training.form.type.search:
+    class: 'PrestaShop\Training\Grid\FormType\SearchType'
+    arguments:
+      - '@router.default'
+    tags:
+      - { name: form.type }
+
+  ps_training.tab_manager:
+    class: 'PrestaShop\Training\Menu\TabManager'
+    tags: ['front']

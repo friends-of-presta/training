@@ -1,0 +1,29 @@
+language: php
+
+notifications:
+  email:
+    on_success: never
+
+php:
+  - 7.1
+  - 7.2
+  - 7.3
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    - php: 7.3
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+
+before_script:
+  - composer install -n
+  - composer cs-test
+
+script:
+  - composer test -- --coverage-clover=coverage.xml
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
