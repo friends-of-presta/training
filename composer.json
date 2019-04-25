@@ -1,5 +1,5 @@
 {
-    "name": "prestashop/training",
+    "name": "mickaelandrieu/training",
     "type": "prestashop-module",
     "license": "MIT",
     "authors": [
@@ -28,8 +28,7 @@
     },
     "require-dev": {
         "roave/security-advisories": "dev-master",
-        "friendsofphp/php-cs-fixer": "^2.12",
-        "phpunit/phpunit": "^8.0"
+        "friendsofphp/php-cs-fixer": "^2.12"
     },
     "scripts": {
         "cs-fix": "@php ./vendor/bin/php-cs-fixer fix",
