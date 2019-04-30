@@ -1,8 +1,12 @@
-import Grid from '../grid/grid';
-import FiltersResetExtension from "../grid/extension/filters-reset-extension";
-import SortingExtension from "../grid/extension/sorting-extension";
-import ReloadListExtension from "../grid/extension/reload-list-extension";
-import ExportToSqlManagerExtension from "../grid/extension/export-to-sql-manager-extension";
+import Grid from '../../../../../../admin-dev/themes/new-theme/js/components/grid/grid';
+import FiltersResetExtension
+  from "../../../../../../admin-dev/themes/new-theme/js/components/grid/extension/filters-reset-extension";
+import SortingExtension
+  from "../../../../../../admin-dev/themes/new-theme/js/components/grid/extension/sorting-extension";
+import ReloadListExtension
+  from "../../../../../../admin-dev/themes/new-theme/js/components/grid/extension/reload-list-extension";
+import ExportToSqlManagerExtension
+  from "../../../../../../admin-dev/themes/new-theme/js/components/grid/extension/export-to-sql-manager-extension";
 
 const $ = window.$;
 
