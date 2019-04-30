@@ -1,5 +1,4 @@
 parameters:
-  exchange_rates_api_endpoint: 'https://api.exchangeratesapi.io/latest'
 
 services:
   _defaults:
@@ -32,7 +31,6 @@ services:
     class: 'PrestaShop\Training\Grid\Definition\ProductGridDefinitionFactory'
     parent: 'prestashop.core.grid.definition.factory.abstract_grid_definition'
     arguments:
-      - '@prestashop.core.hook.dispatcher'
       - "@=service('router').generate('admin_common_reset_search', {'controller': 'product', 'action': 'listing'})"
       - "@=service('router').generate('admin_ps_training_products')"
     public: true

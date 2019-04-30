@@ -56,7 +56,7 @@ class AlternativeDescription
      * @param $productId
      * @param FormFactoryInterface $formFactory
      *
-     * @return \Symfony\Component\Form\FormFactoryInterface
+     * @return FormInterface
      */
     public static function addToForm($productId, FormFactoryInterface $formFactory)
     {

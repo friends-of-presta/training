@@ -1,16 +1,19 @@
 <?php
 
-require_once __DIR__.'/vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
+use Twig\Environment;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-
-use PrestaShop\PrestaShop\Core\Grid\Column\Type\DataColumn;
-use PrestaShop\PrestaShop\Core\Grid\Filter\Filter;
-
+use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormBuilder;
+use PrestaShop\PrestaShop\Core\Grid\Definition\GridDefinitionInterface;
+use PrestaShop\PrestaShop\Adapter\Configuration;
 use PrestaShop\Training\Product\ProductHooks;
 use PrestaShop\Training\Product\AlternativeDescription;
 use PrestaShop\Training\Product\ProductsCollection;
 use PrestaShop\Training\Menu\TabManager;
+use PrestaShop\Training\Grid\Logs;
 
 /**
  * A complete module to demonstrate PrestaShop 1.7 features
@@ -18,52 +21,35 @@ use PrestaShop\Training\Menu\TabManager;
 class Training extends Module
 {
     /**
-     * @var array list of available Product hooks.
+     * @var array list of available Product hooks
      */
     private $productHooks;
 
+    /**
+     * Training constructor.
+     */
     public function __construct()
     {
         $this->name = 'training';
-        $this->version = '1.0.0';
+        $this->version = '1.0.1';
         $this->author = 'PrestaShop';
         $this->need_instance = false;
 
         parent::__construct();
 
         $this->displayName = $this->trans('PrestaShop Training module');
+        $this->description = $this->trans('Demonstrate all the features of the PrestaShop Back Office, in its version 1.7.5');
 
         $this->productHooks = array_merge(ProductHooks::PRODUCT_LIST_HOOKS, ProductHooks::PRODUCT_FORM_HOOKS);
     }
 
-    public function hookActionLanguageGridDefinitionModifier(array $params)
+    public function hookActionLogsGridDefinitionModifier(array $params)
     {
-        /** @var \PrestaShop\PrestaShop\Core\Grid\Definition\GridDefinitionInterface $definition */
+        /** @var GridDefinitionInterface $definition */
         $definition = $params['definition'];
 
-        $definition->getColumns()
-            ->remove('id_lang')
-            ->addAfter(
-                'date_format_full',
-                (new DataColumn('locale'))
-                    ->setName('LOCALE')
-                    ->setOptions([
-                        'field' => 'locale',
-                    ])
-            )
-        ;
-
-        $definition->getFilters()
-            ->remove('id_lang')
-            ->add((new Filter('locale', TextType::class))
-                ->setAssociatedColumn('locale')
-                ->setTypeOptions([
-                    'attr' => [
-                        'placeholder' => 'SEARCH ISO CODE',
-                    ],
-                ])
-            )
-        ;
+        Logs::moveObjectTypeAfterErrorColumn($definition);
+        Logs::updateObjectTypeFilterForm($definition);
     }
 
     /**
@@ -73,16 +59,16 @@ class Training extends Module
      */
     public function hookActionGeneralPageForm(array $hookParams)
     {
-        /** @var \Symfony\Component\Form\FormBuilder $formBuilder */
+        /** @var FormBuilder $formBuilder */
         $formBuilder = $hookParams['form_builder'];
 
         $formBuilder->add('shop_motto', TextType::class, [
-            'data' => Configuration::get('PS_TRAINING_SHOP_MOTTO'),
+            'data' => $this->get('prestashop.adapter.legacy.configuration')->get('PS_TRAINING_SHOP_MOTTO'),
         ]);
     }
 
     /**
-     * Save the extra configuration value added to the General Page form.
+     * Save the extra configuration "Shop motto" value added to the General Page form.
      *
      * @param array $hookParams
      */
@@ -90,23 +76,29 @@ class Training extends Module
     {
         $motto = $hookParams['form_data']['shop_motto'];
 
-        Configuration::updateValue('PS_TRAINING_SHOP_MOTTO', $motto);
+        /* @var Configuration */
+        $this->get('prestashop.adapter.legacy.configuration')->set('PS_TRAINING_SHOP_MOTTO', $motto);
     }
 
     /**
      * Display "alternative" in Product page.
+     *
      * @param array $hookParams
+     *
      * @return string
      */
     public function hookDisplayAdminProductsMainStepLeftColumnMiddle($hookParams)
     {
         $productId = $hookParams['id_product'];
-        /** @var \Symfony\Component\Form\FormInterface $formFactory */
+        /** @var FormFactoryInterface $formFactory */
         $formFactory = $this->get('form.factory');
 
-        /** @var \Twig\Environment $twig */
+        /** @var Environment $twig */
         $twig = $this->get('twig');
+
+        /** @var FormInterface $form */
         $form = AlternativeDescription::addToForm($productId, $formFactory);
+
         // You don't need to design your form, call only form_row(my_field) in
         // your template.
         return AlternativeDescription::setTemplateToProductPage($twig, $form);
@@ -122,6 +114,7 @@ class Training extends Module
 
     /**
      * Manage the list of product fields available in the Product Catalog page.
+     *
      * @param array $hookParams
      */
     public function hookActionAdminProductsListingFieldsModifier(&$hookParams)
@@ -135,6 +128,7 @@ class Training extends Module
 
     /**
      * Manage the list of products available in the Product Catalog page.
+     *
      * @param array $hookParams
      */
     public function hookActionAdminProductsListingResultsModifier(&$hookParams)
@@ -144,12 +138,13 @@ class Training extends Module
             ->all()
         ;
     }
+
     /**
      * Manage the information in a specific tab of Product Page.
-     * @param array $hookParams
+     *
      * @return string
      */
-    public function hookDisplayAdminProductsExtra(&$hookParams)
+    public function hookDisplayAdminProductsExtra()
     {
         return $this->get('twig')->render('@PrestaShop/Products/module_panel.html.twig');
     }
@@ -160,11 +155,11 @@ class Training extends Module
     public function install()
     {
         return parent::install() &&
-            $this->registerHook('actionLanguageGridDefinitionModifier') &&
-            $this->registerHook('actionLanguageGridQueryBuilderModifier') &&
-            $this->registerHook('actionLanguageGridPresenterModifier') &&
-            $this->registerHook('actionLanguageGridGridFilterFormModifier') &&
-            $this->registerHook('actionLanguageGridGridDataModifier') &&
+            $this->registerHook('actionLogsGridDefinitionModifier') &&
+            $this->registerHook('actionLogsGridQueryBuilderModifier') &&
+            $this->registerHook('actionLogsGridPresenterModifier') &&
+            $this->registerHook('actionLogsGridFilterFormModifier') &&
+            $this->registerHook('actionLogsGridGridDataModifier') &&
 
             $this->registerHook('actionGeneralPageForm') &&
             $this->registerHook('actionGeneralPageSave') &&
@@ -187,7 +182,8 @@ class Training extends Module
                 $productHooksUnregistrationSuccess = false;
             }
         }
-        return parent::uninstall() &&
+
+        $uninstallationSuccess = parent::uninstall() &&
             $this->unregisterHook('actionLanguageGridDefinitionModifier') &&
             $this->unregisterHook('actionLanguageGridQueryBuilderModifier') &&
             $this->unregisterHook('actionLanguageGridPresenterModifier') &&
@@ -203,8 +199,18 @@ class Training extends Module
         ;
 
         $this->get('cache_clearer')->clearAllCaches();
+
+        return $uninstallationSuccess;
     }
 
+    /**
+     * Setup the Training Menu as Modern Controllers are not managed (yet) by the $tabs property.
+     *
+     * @return bool
+     *
+     * @throws PrestaShopDatabaseException
+     * @throws PrestaShopException
+     */
     public function installTabs()
     {
         TabManager::addTab('AdminTraining', 'Training Menu', 'training', 'AdminTools');
@@ -214,6 +220,14 @@ class Training extends Module
         return true;
     }
 
+    /**
+     * Remove the Training Menu as Modern Controllers are not managed (yet) by the $tabs property.
+     *
+     * @return bool
+     *
+     * @throws PrestaShopDatabaseException
+     * @throws PrestaShopException
+     */
     public function uninstallTabs()
     {
         TabManager::removeTab('AdminTrainingIndexClass');
@@ -224,7 +238,7 @@ class Training extends Module
     }
 
     /**
-     * @return bool forces the module to use the new translation system.
+     * @return bool forces the module to use the new translation system
      */
     public function isUsingNewTranslationSystem()
     {

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>training</name>
+    <displayName><![CDATA[PrestaShop Training module]]></displayName>
+    <version><![CDATA[1.0.1]]></version>
+    <description><![CDATA[Demonstrate all the features of the PrestaShop Back Office, in its version 1.7.5]]></description>
+    <author><![CDATA[PrestaShop]]></author>
+    <tab><![CDATA[]]></tab>
+    <is_configurable>0</is_configurable>
+    <need_instance>0</need_instance>
+	<limited_countries></limited_countries>
+</module>

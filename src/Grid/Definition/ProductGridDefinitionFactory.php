@@ -14,7 +14,6 @@ use PrestaShop\PrestaShop\Core\Grid\Definition\Factory\AbstractGridDefinitionFac
 use PrestaShop\PrestaShop\Core\Grid\Filter\Filter;
 use PrestaShop\PrestaShop\Core\Grid\Filter\FilterCollection;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use PrestaShop\PrestaShop\Core\Hook\HookDispatcherInterface;
 use PrestaShop\Training\Grid\FormType\YesAndNoChoiceType;
 use PrestaShopBundle\Form\Admin\Type\SearchAndResetType;
 use PrestaShop\Training\Grid\Column\LinkColumn;
@@ -38,12 +37,10 @@ final class ProductGridDefinitionFactory extends AbstractGridDefinitionFactory
      * @param string $resetFiltersUrl
      * @param string $redirectUrl
      */
-    public function __construct(HookDispatcherInterface $hookDispatcher, $resetFiltersUrl, $redirectUrl)
+    public function __construct($resetFiltersUrl, $redirectUrl)
     {
         $this->resetFiltersUrl = $resetFiltersUrl;
         $this->redirectUrl = $redirectUrl;
-
-        parent::__construct($hookDispatcher);
     }
 
     /**

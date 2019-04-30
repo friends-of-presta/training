@@ -69,6 +69,7 @@ final class ShopStatusCommand extends ContainerAwareCommand
 
     /**
      * @param array $shops the list of the shops
+     *
      * @return array
      */
     private function formatShopInformation(array $shops)
@@ -81,7 +82,7 @@ final class ShopStatusCommand extends ContainerAwareCommand
                 $shop->getName(),
                 $shop->getThemeName(),
                 $shop->getActive() ? '✔' : '✘',
-                $shop->getDeleted() ? '✔' : '✘'
+                $shop->getDeleted() ? '✔' : '✘',
             ];
         }
 
