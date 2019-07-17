@@ -3,6 +3,7 @@ var Encore = require('@symfony/webpack-encore');
 Encore
   .setOutputPath('public/build/')
   .setPublicPath('/build')
+  .disableSingleRuntimeChunk()
 
   .addEntry('admin/product/index', './assets/admin/js/product/index.js')
 

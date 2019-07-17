@@ -31,14 +31,18 @@ class Training extends Module
     public function __construct()
     {
         $this->name = 'training';
-        $this->version = '1.0.1';
+        $this->version = '1.1.0';
         $this->author = 'PrestaShop';
         $this->need_instance = false;
+        $this->ps_versions_compliancy = [
+            'min' => '1.7.6.0',
+            'max' => _PS_VERSION_,
+        ];
 
         parent::__construct();
 
         $this->displayName = $this->trans('PrestaShop Training module');
-        $this->description = $this->trans('Demonstrate all the features of the PrestaShop Back Office, in its version 1.7.5');
+        $this->description = $this->trans('Demonstrate all the features of the PrestaShop Back Office, in its version 1.7.6');
 
         $this->productHooks = array_merge(ProductHooks::PRODUCT_LIST_HOOKS, ProductHooks::PRODUCT_FORM_HOOKS);
     }
@@ -175,32 +179,7 @@ class Training extends Module
      */
     public function uninstall()
     {
-        $productHooksUnregistrationSuccess = true;
-
-        foreach ($this->productHooks as $productHook) {
-            if (false === $this->unregisterHook($productHook)) {
-                $productHooksUnregistrationSuccess = false;
-            }
-        }
-
-        $uninstallationSuccess = parent::uninstall() &&
-            $this->unregisterHook('actionLanguageGridDefinitionModifier') &&
-            $this->unregisterHook('actionLanguageGridQueryBuilderModifier') &&
-            $this->unregisterHook('actionLanguageGridPresenterModifier') &&
-            $this->unregisterHook('actionLanguageGridGridFilterFormModifier') &&
-            $this->unregisterHook('actionLanguageGridGridDataModifier') &&
-
-            $this->unregisterHook('actionGeneralPageForm') &&
-            $this->unregisterHook('actionGeneralPageSave') &&
-
-            AlternativeDescription::removeToProductTable() &&
-            $this->uninstallTabs() &&
-            $productHooksUnregistrationSuccess
-        ;
-
-        $this->get('cache_clearer')->clearAllCaches();
-
-        return $uninstallationSuccess;
+        return AlternativeDescription::removeToProductTable();
     }
 
     /**
@@ -216,23 +195,6 @@ class Training extends Module
         TabManager::addTab('AdminTraining', 'Training Menu', 'training', 'AdminTools');
         TabManager::addTab('AdminTrainingIndexClass', 'Controller exemple', 'training', 'AdminTraining');
         TabManager::addTab('AdminTrainingGridClass', 'Grid exemple', 'training', 'AdminTraining');
-
-        return true;
-    }
-
-    /**
-     * Remove the Training Menu as Modern Controllers are not managed (yet) by the $tabs property.
-     *
-     * @return bool
-     *
-     * @throws PrestaShopDatabaseException
-     * @throws PrestaShopException
-     */
-    public function uninstallTabs()
-    {
-        TabManager::removeTab('AdminTrainingIndexClass');
-        TabManager::removeTab('AdminTrainingGridClass');
-        TabManager::removeTab('AdminTraining');
 
         return true;
     }

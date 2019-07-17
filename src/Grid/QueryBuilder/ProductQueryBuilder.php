@@ -38,20 +38,8 @@ final class ProductQueryBuilder extends AbstractDoctrineQueryBuilder
      */
     public function getSearchQueryBuilder(SearchCriteriaInterface $searchCriteria)
     {
-        $quantitiesQuery = $this->connection
-            ->createQueryBuilder()
-            ->select('id_product, SUM(quantity) as quantity')
-            ->from($this->dbPrefix . 'stock_available', 'sa')
-            ->groupBy('id_product');
-
         $qb = $this->getBaseQuery($searchCriteria->getFilters());
         $qb->select('p.id_product, pl.name, q.quantity')
-            ->leftJoin(
-                'p',
-                sprintf('(%s)', $quantitiesQuery->getSQL()),
-                'q',
-                'p.id_product = q.id_product'
-            )
             ->leftJoin(
                 'p',
                 $this->dbPrefix . 'product_shop',
@@ -90,6 +78,13 @@ final class ProductQueryBuilder extends AbstractDoctrineQueryBuilder
      */
     private function getBaseQuery(array $filters)
     {
+        $quantitiesQuery = $this->connection
+            ->createQueryBuilder()
+            ->select('id_product, SUM(quantity) as quantity')
+            ->from($this->dbPrefix . 'stock_available', 'sa')
+            ->groupBy('id_product')
+        ;
+
         $qb = $this->connection
             ->createQueryBuilder()
             ->from($this->dbPrefix . 'product', 'p')
@@ -98,6 +93,12 @@ final class ProductQueryBuilder extends AbstractDoctrineQueryBuilder
                 $this->dbPrefix . 'product_lang',
                 'pl',
                 'p.id_product = pl.id_product AND pl.id_lang = :context_lang_id AND pl.id_shop = :context_shop_id'
+            )
+            ->leftJoin(
+                'p',
+                sprintf('(%s)', $quantitiesQuery->getSQL()),
+                'q',
+                'p.id_product = q.id_product'
             )
             ->setParameter('context_lang_id', $this->contextLangId)
             ->setParameter('context_shop_id', $this->contextShopId)

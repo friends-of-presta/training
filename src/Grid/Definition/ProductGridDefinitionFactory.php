@@ -2,6 +2,7 @@
 
 namespace PrestaShop\Training\Grid\Definition;
 
+use PrestaShop\PrestaShop\Core\Hook\HookDispatcherInterface;
 use PrestaShop\Training\Grid\Column\StockColumn;
 use PrestaShop\PrestaShop\Core\Grid\Action\GridActionCollection;
 use PrestaShop\PrestaShop\Core\Grid\Action\Row\RowActionCollection;
@@ -34,11 +35,13 @@ final class ProductGridDefinitionFactory extends AbstractGridDefinitionFactory
     private $redirectUrl;
 
     /**
+     * @param HookDispatcherInterface $hookDispatcher
      * @param string $resetFiltersUrl
      * @param string $redirectUrl
      */
-    public function __construct($resetFiltersUrl, $redirectUrl)
+    public function __construct(HookDispatcherInterface $hookDispatcher, $resetFiltersUrl, $redirectUrl)
     {
+        parent::__construct($hookDispatcher);
         $this->resetFiltersUrl = $resetFiltersUrl;
         $this->redirectUrl = $redirectUrl;
     }
@@ -120,14 +123,15 @@ final class ProductGridDefinitionFactory extends AbstractGridDefinitionFactory
             ->add((new Filter('in_stock', YesAndNoChoiceType::class))
                 ->setAssociatedColumn('in_stock')
             )
-            ->add((new Filter('actions', SearchAndResetType::class))
-                ->setTypeOptions([
-                    'attr' => [
-                        'data-url' => $this->resetFiltersUrl,
-                        'data-redirect' => $this->redirectUrl,
-                    ],
-                ])
-                ->setAssociatedColumn('actions')
+            ->add(
+                (new Filter('actions', SearchAndResetType::class))
+                    ->setTypeOptions([
+                        'attr' => [
+                            'data-url' => $this->resetFiltersUrl,
+                            'data-redirect' => $this->redirectUrl,
+                        ],
+                    ])
+                    ->setAssociatedColumn('actions')
             )
         ;
     }
